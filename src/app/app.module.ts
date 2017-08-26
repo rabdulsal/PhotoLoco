@@ -8,6 +8,7 @@ import { PlacePage } from '../pages/place/place';
 import { SetLocationPage } from '../pages/set-location/set-location';
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
+import { AgmCoreModule } from 'angular2-google-maps/core';
 
 @NgModule({
   declarations: [
@@ -19,6 +20,9 @@ import { HomePage } from '../pages/home/home';
   ],
   imports: [
     BrowserModule,
+    AgmCoreModule.forRoot({
+      apiKey: 'AIzaSyDNetxWQ3EpbgzGN1nzAswXxM2xsY0W16E'
+    }),
     IonicModule.forRoot(MyApp)
   ],
   bootstrap: [IonicApp],
