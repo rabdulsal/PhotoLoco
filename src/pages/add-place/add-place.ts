@@ -10,6 +10,11 @@ import { NgForm } from "@angular/forms";
 import { SetLocationPage } from "../set-location/set-location";
 import { Location } from "../../models/location";
 import { Geolocation } from "@ionic-native/geolocation";
+import { Camera } from '@ionic-native/camera';
+import { PlacesService } from '../../services/places';
+import { File } from '@ionic-native/file';
+
+declare var cordova: any; // Declare variable availability at run-time; currently only available on device
 
 @IonicPage()
 @Component({
@@ -22,16 +27,32 @@ export class AddPlacePage {
     lng: -73.9759827
   };
   locationIsSet = false;
+  imageUrl = "";
 
   constructor(
     private modalCtrl: ModalController,
     private navParams: NavParams,
     private geolocation: Geolocation,
+    private camera: Camera,
+    private file: File,
+    private placesSrvc: PlacesService,
     private loadingCtrl: LoadingController,
     private toastCtrl: ToastController) {}
 
   onSubmit(form: NgForm) {
-    console.log(form.value);
+    this.placesSrvc.addPlace(
+      form.value.title,
+      form.value.description,
+      this.location,
+      this.imageUrl
+    );
+      form.reset();
+      this.location = {
+        lat: 40.7624324,
+        lng: -73.9759827
+      };
+      this.imageUrl = '';
+      this.locationIsSet = false;
   }
 
   onOpenMap() {
@@ -67,6 +88,48 @@ export class AddPlacePage {
       });
       toast.present();
     });
+  }
+
+  onTakePhoto() {
+    this.camera.getPicture({
+      encodingType: 0, // JPEG which is Default
+      correctOrientation: true
+    })
+      .then(
+        imageData => {
+          const currentName = imageData.replace(/^.*[\\\/]/, '');
+          const path = imageData.replace(/[^\/]*$/, '');
+          this.file.moveFile(path, currentName, cordova.file.dataDirectory, currentName)
+            .then(
+              data => {
+                this.imageUrl = data.nativeURL;
+                this.camera.cleanup();
+                // this.file.removeFile(path, currentName); Alterantive file cleanup
+              }
+            )
+            .catch(
+              err => {
+                this.imageUrl = '';
+                const toast = this.toastCtrl.create({
+                  message: 'Cound not save the image. Please try again.',
+                  duration: 2500
+                });
+                toast.present();
+                this.camera.cleanup(); // Remove image from temp storage
+              }
+            );
+          this.imageUrl = imageData;
+        }
+      )
+      .catch(
+        err => {
+          const toast = this.toastCtrl.create({
+            message: 'Cound not save the image. Please try again.',
+            duration: 2500
+          });
+          toast.present();
+        }
+      );
   }
 
 }

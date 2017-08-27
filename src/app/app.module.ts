@@ -10,6 +10,9 @@ import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { AgmCoreModule } from 'angular2-google-maps/core';
 import { Geolocation } from "@ionic-native/geolocation";
+import { Camera } from '@ionic-native/camera';
+import { PlacesService } from "../services/places";
+import { File } from '@ionic-native/file';
 
 @NgModule({
   declarations: [
@@ -38,6 +41,9 @@ import { Geolocation } from "@ionic-native/geolocation";
     StatusBar,
     SplashScreen,
     Geolocation,
+    Camera,
+    File,
+    PlacesService,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })
